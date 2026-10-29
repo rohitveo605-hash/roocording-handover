@@ -123,6 +123,40 @@ not-started / rejected. FireRoo-style simulated logs never surface as real
 evidence. Cloudflare Pages free limit 25 MiB/file — the 40+ MB GLBs are runtime
 packs for R2, never Pages.
 
+## SESSION 3b UPDATE (2026-10-29) — STREAM DECK -> OSC -> UE5 STUNT RIG
+IN THIS REPO (osc/): roocording_osc_stage_core.mjs + roocording_osc_stage_tdd.mjs
+(8/8 PASS: wire round-trip of all 16 addresses, malformed rejection, backflip
+auto-release 2.5 s, flame sockets, cam/emote/reset semantics, T-pose latch,
+unknown-address log, real loopback UDP). StreamDeck-OSC-UE5-Blueprint.md: 16-button
+table, BP_StageOSCManager recipe, AnimBP blend graph, behavior contract. Split:
+CODE-REAL (wire codec, address map, state machine, listener) vs SPEC-ONLY
+(hardware steps, Blueprint graphs). No Unreal Editor in the sandbox.
+
+## SESSION 3c UPDATE (2026-10-29) — LIVE LINK REMAP + IK CORRECTION + LATENCY PROBE
+IN THIS REPO (osc/):
+- roocording_livelink_remap.mjs (46e75ec, byte-verified) — BODY_BONE_MAP 22 joints,
+  CURVE_MAP 12 FACS curves, createRemapper (exact GetRemappedBoneName_Implementation
+  semantics: TMap find + identity passthrough), validateRemapTables preflight,
+  solveTwoBoneIK. Post-push byte-diff caught that the LOCAL comment claimed
+  "d1+d2-eps" while the code (correctly) keeps exact straight reach hi=d1+d2 —
+  fixed the comment to match the code, never the other way. eps belongs ONLY on
+  the low side (|d1-d2|+eps).
+- roocording_net_latency_probe.mjs (79b3ce12) — sequenced UDP echo probe, magic
+  0x524f4f21, PREAMBLE ROOPING, BigInt nanosecond timestamps; reports
+  sent/received, loss %, RTT min/avg/max/p99, jitter. Every report carries the
+  scope string: UDP network path only — NOT end-to-end MoCap-to-pixel latency.
+- roocording_livelink_latency_tdd.mjs (ce1a4ea6) — 5/5 PASS (remap semantics,
+  validator honesty, IK alpha/bend/beta identities, probe codec + synthetic
+  stats 98/100 -> 2.0% loss / 2.0 ms avg, loopback 20/20).
+- StreamDeck-OSC-UE5-Blueprint.md (7472de45) — Part 3 added: remap module
+  reference, CORRECTED 2-bone IK (the project's printed formula is only the root
+  elevation beta — never the elbow angle), probe usage, UE5 Live Link 5-step
+  checklist (SPEC-ONLY), stage projection notes. "Zero lag"/"guaranteed perfect
+  lip-sync" explicitly labelled marketing, not measurements.
+Re-run after the comment fix: 5/5 + OSC 8/8 both green; loopback avg RTT ~0.2-0.4 ms.
+Push discipline: SEQUENTIAL create_or_update_file calls only — parallel pushes
+race the branch HEAD and 409.
+
 ## HOUSE RULES (non-negotiable)
 - Only speaking English. Add only; close hides; never delete desk suites.
 - Ceiling -1.0 dBTP = 0.891250938 linear. NEVER DynamicsCompressorNode.
