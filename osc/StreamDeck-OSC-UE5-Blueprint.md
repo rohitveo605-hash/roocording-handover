@@ -74,7 +74,7 @@ To receive and process these Stream Deck signals inside Unreal Engine 5 in real 
 ```
 
 ### Step 3: Parse Incoming Stream Deck Commands
-Inside the custom event bound to `OnOSCMessage Received`:
+Inside the custom event bound to `OnOSCMessageReceived`:
 
 1. Drag out from the **OSC Message** pin and call **Get OSC Message Address**.
 2. Convert the address to a String and route it into a **Switch on String** node (cases match `STAGE_MAP` in `roocording_osc_stage_core.mjs` exactly):
