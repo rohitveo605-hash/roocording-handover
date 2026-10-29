@@ -124,3 +124,65 @@ This setup gives the stage operator instant, physical button access to trigger s
 | anything else | logged as unknown, never executed, never crashes |
 
 Wire format: OSC 1.0 message, `",f"` typetag, value `1.0` big-endian float, strings 4-byte aligned — identical to what the CODE-REAL encoder produces and the test suite round-trips.
+
+---
+
+# Part 3: Live Link Remap, IK & Network Latency
+
+## 3.1 Remap tables (CODE-REAL data, SPEC-ONLY in-engine)
+
+`roocording_livelink_remap.mjs` holds Kimmy's bone/curve tables and mirrors
+`GetRemappedBoneName_Implementation` semantics exactly (TMap find, identity
+fallback). Run `validateRemapTables({ targetBones })` against her skeleton
+BEFORE pasting anything into UE5 — it catches duplicate targets, missing
+bones, and empty tables. The C++ constructor table and the Blueprint
+Switch-on-Name should be generated from this module, never retyped.
+
+## 3.2 Corrected 2-bone IK
+
+The formula circulating in the project docs —
+`θ = arccos((d₂² − d₁² − D²)/(−2·d₁·D))` — is NOT the elbow angle. It is the
+**root elevation angle β** (between the root→target line and the first bone).
+The complete, correct pair (`solveTwoBoneIK(d1, d2, D)` implements both,
+UE TwoBoneIK convention, degenerate targets clamped — never NaN):
+
+```
+D  = clamp(distance, |d1−d2|, d1+d2)
+alpha = acos((d1² + d2² − D²) / (2·d1·d2))   # interior angle at mid joint; straight reach = π
+beta  = acos((d1² + D²  − d2²) / (2·d1·D))   # root elevation angle
+bend  = π − alpha                            # colloquial flexion: 0 straight, π folded
+```
+
+## 3.3 Latency probe (CODE-REAL)
+
+`roocording_net_latency_probe.mjs` — sequenced UDP echo probe:
+
+```
+render machine:  node roocording_net_latency_probe.mjs listen 6301
+tracking rig:    node roocording_net_latency_probe.mjs probe <render-ip> 6301 100 10
+```
+
+Reports sent/received, loss %, RTT min/avg/max/p99, and jitter.
+
+HONEST SCOPE: this measures the **UDP network path only**. End-to-end
+MoCap-to-pixel latency also includes capture hardware, Live Link evaluation,
+and render/display stages — those need hardware timestamps. Never quote the
+probe number as total stage latency.
+
+## 3.4 UE5 Live Link setup (SPEC-ONLY — no Unreal Editor in the build sandbox)
+
+1. **Enable plugins**: Live Link, Live Link Control Rig, Live Link Face, and the hardware plugin (OptiTrack / Rokoko / Xsens / FreeD). Restart the editor.
+2. **Network**: tracking workstation and render PC on the same 1GbE/10GbE segment; stream UDP to the render PC's IP (Motive `1510`, Rokoko/Live Link Face `11111`, FreeD `6301`).
+3. **Source**: Window > Virtual Production > Live Link > + Source; confirm green dot and frame telemetry on `Kimmy_Body_Subject` / `Kimmy_Face_Subject`.
+4. **AnimBP**: Live Link Pose node per subject; assign the remap asset (3.1); route through Control Rig / IK Retargeter for joint limits.
+5. **Tuning**: Subject Evaluation Mode = Latest Frame; Project Settings > Live Link frame rate matched to capture rate.
+
+## 3.5 Stage projection & output (SPEC-ONLY)
+
+- Musion foil / HoloMesh at 45°, floor bounce screen, 20,000+ lumen 4K laser projector; flag stage key lights off the foil.
+- DeckLink 8K Pro / AJA Kona 5 with Media Output (3840×2160@59.94, 10-bit YUV, external key fill) or NDI High-Bandwidth over 10GbE.
+- Render queue frame buffer 1; `bUseFixedFrameRate=True`, `FixedFrameRate=60`, `bSmoothFrameRate=False`.
+
+Claims like "zero lag" and "guaranteed perfect lip-sync" are marketing, not
+measurements. The probe in 3.3 plus a frame-time HUD in UE5 (`stat unit`) are
+the honest evidence sources.
