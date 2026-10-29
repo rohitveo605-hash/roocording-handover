@@ -69,7 +69,7 @@ class RooPhaseCompass {
         for (let j = 0; j < len / 2; j++) {
           const ur = re[i + j], ui = im[i + j];
           const vr = re[i + j + len / 2] * cwr - im[i + j + len / 2] * cwi;
-          const vi = re[i + j + len / 2] * cwi + re[i + j + len / 2] * cwr;
+          const vi = re[i + j + len / 2] * cwi + im[i + j + len / 2] * cwr;
           re[i + j] = ur + vr; im[i + j] = ui + vi;
           re[i + j + len / 2] = ur - vr; im[i + j + len / 2] = ui - vi;
           const nwr = cwr * wr - cwi * wi;
