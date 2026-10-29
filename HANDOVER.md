@@ -3,8 +3,65 @@
 Complete, verified build for the RooCording platform. Everything here is tested and
 working. Give this whole package to the next AI with: "Continue from HANDOVER.md."
 
-## SESSION 2 UPDATE (2026-10-29) — READ FIRST
+## SESSION 3 UPDATE (2026-10-29) — SEVEN QUIRKY INVENTIONS SHIPPED
 
+User directive: implement the 7 inventions from RooCording__Seven_New_Quirky_Inventions.md
+as real Web Audio engines and integrate the FireRoo Orbital Console UI into the
+existing grid without breaking it. DONE, verified in headless Chromium over BOTH
+http://localhost (AudioWorklet path) and file:// (ScriptProcessorNode fallback),
+zero console errors in both runs.
+
+IN THIS REPO (inventions/):
+- roocording_seven_inventions_core.mjs — deterministic DSP cores, no DOM/WebAudio.
+  Single source of truth: the browser HTML inlines this file VERBATIM at build time
+  (build script: /tmp/roo-rebuild/build_fireroo.py, also recoverable from git notes),
+  so node tests and browser run identical code. Commit 0af8649 verified byte-identical
+  to the tested local file (one transcription typo in the radix-2 FFT butterfly at
+  line 72 was caught by post-push byte-diff and fixed the same hour — always verify
+  pushed content against local bytes).
+- roocording_seven_inventions_tdd.mjs — acceptance tests from the spec, one per
+  invention. Run: node roocording_seven_inventions_tdd.mjs -> ALL 7/7 PASS.
+
+THE 7 ENGINES (formulas from the spec, verbatim):
+1. RooPhaseCompass — bounded PI PLL on spectral-flux onsets; corrects phase, never
+   BPM. Kp=0.18, Ki=0.015, clamp +/-0.08T. Own radix-2 FFT.
+2. RooHarmonicWeather — centroid->wind (200-8000 Hz map), flatness*1.8->storm,
+   low-band RMS->rain, onset flux->flash. tau 450/120 ms exponential smoothing.
+3. RooPocketWaveguide — Karplus-Strong: u[n]=g(1-d)u[n-D]+gd*u[n-D-1] with
+   fractional delay + one-pole LP in loop. f clamped [40, Fs/2]; delay line bounded.
+   NOTE: fundamental must be measured by AUTOCORRELATION, not zero crossings —
+   the pluck is sawtooth-like and every harmonic decays at a near-equal rate.
+4. RooMaskLantern — 11 Bark-like bands, m=max(0,Ls-Lt-6dB), gain=-clamp(m*0.35,0,6dB),
+   8 ms attack / 120 ms release. Labelled "heuristic, not a compliance meter".
+5. RooEchoLantern — Hann chirp 1.8-3.4 kHz, 50 ms; cross-correlation; FIRST
+   significant local max = direct path, NEXT = echo; distance = 343*dt/2 (20 C).
+   <2 significant peaks -> honest "no reliable echo". Opt-in mic, cancellable,
+   disposable buffer.
+6. RooGravityArpeggiator — theta=atan2(gy,sqrt(gx^2+gz^2)) maps [-45,45] deg to
+   [1/4,1/8,1/8T,1/16] with +/-3 deg dead zone; pitch stays quantized to scale.
+7. RooPeakForecast — 4x polyphase 12-tap (BS.1770-style) reconstruction estimate at
+   phases 0.25/0.5/0.75; marginDb = -1.0 - 20log10(maxPeak); never "certified".
+
+BROWSER DELIVERABLE: /mnt/agents/output/roocording-package/FireRoo-OrbitalConsole-Inventions.html
+(71,785 bytes, sha256 951a8f4629ca0b6d6a144b2f73622cbc82f11839f7bb699c2c068e67a6b7c9de).
+- Original FireRoo CSS vars + header/workspace/viewport/mixer-ribbon grid preserved;
+  console panels live INSIDE #main-viewport (gauge column) and overlays — no
+  position:fixed layers over the grid.
+- The four FAKE apex systems (ML-KEM handshake, NPU/Hexagon scheduler, metamorphic
+  guard, hologram matrix) and the "MOTHER OMNISCIENT CORE" watermark are REMOVED,
+  not relabelled. GO LIVE opens an honest gate: no publish path configured.
+- Mixer meters are driven by a real AnalyserNode — verified: silent = scaleY(0)
+  exactly, demo playing = 0.23, back to 0 after stop.
+- Dual-path limiter: AudioWorklet over http, identical-DSP ScriptProcessorNode over
+  file://; HUD tags which path is live. House ceiling 0.891250938*0.97, no
+  DynamicsCompressorNode anywhere.
+- Demo: deterministic 2-bar 120 BPM loop (kick+hat+pads+lead) feeding compass,
+  weather, mask, forecast. Forecast of the demo mix honestly reports RISK
+  (-0.45 dB margin — the loop peaks hot and the limiter is the safety stage).
+- Echo self-test in-browser: 0.8575 m exact. Gravity: 45 deg -> 1/16 via the
+  labelled pointer fallback.
+
+## SESSION 2 UPDATE (2026-10-29)
 The portal mounts dropped and took the staged pkg with them. Recovery results,
 all verified LIVE in the recovery session (another sandbox saw /mnt/automation
 down to a .keep file — treat the old staged zip as LOST; do not wait on it):
@@ -66,17 +123,6 @@ not-started / rejected. FireRoo-style simulated logs never surface as real
 evidence. Cloudflare Pages free limit 25 MiB/file — the 40+ MB GLBs are runtime
 packs for R2, never Pages.
 
-## WHERE THE BIG FILES LIVE (superseded — see Session-2 update above)
-The original three large binaries were lost with the mount; rebuilds are staged in:
-- /mnt/agents/output/roocording-package/ (Kombat rebuilt, stinger regenerated, TDD, synth, SHA256.txt)
-- /mnt/agents/output/roocording-stock/ (three.js r128 + OrbitControls, exact byte matches)
-The canonical app lives at /mnt/agents/output/app (PWA, saved version 6c3c974).
-Full original source tree: /mnt/agents/output/roocording-src/roostudio/
-
-Small files (this repo):
-- roocording_kombat_chess_limiter_tdd.mjs — 3/3 suites PASS (node <file>)
-- roocording_offline_jingle_synth.py — regenerates the stinger, zero credentials
-
 ## HOUSE RULES (non-negotiable)
 - Only speaking English. Add only; close hides; never delete desk suites.
 - Ceiling -1.0 dBTP = 0.891250938 linear. NEVER DynamicsCompressorNode.
@@ -98,10 +144,10 @@ Small files (this repo):
 - roo-pads-lab.js: waiting on user paste.
 
 ## NEXT AI: PICK UP HERE
-1. Top up OpenArt -> Keyframe 1 (20 cr, payload in git history) -> Wan 3.0/PixVerse
-   tour video -> watermark-free remakes.
-2. Rebuild SpaceForce from roocording-stock (spec in git history); rebuild
+1. Rebuild SpaceForce from roocording-stock (spec in git history); rebuild
    MegaStage inside the canonical app or get the original re-pasted.
-3. Reconnect Cloudflare with R2 scopes -> upload package -> public URLs.
-4. One real-browser pass on the PWA (GLB textures) + install test on the phone.
+2. Reconnect Cloudflare with R2 scopes -> upload package -> public URLs.
+3. One real-browser pass on the PWA (GLB textures) + install test on the phone.
+4. Top up OpenArt -> keyframe downloads from a normal browser (historyIds above)
+   -> Wan 3.0/PixVerse tour video -> watermark-free remakes.
 5. Keep every limiter at -1.0 dBTP and every label honest.
