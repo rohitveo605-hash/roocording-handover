@@ -52,7 +52,7 @@ BROWSER DELIVERABLE: /mnt/agents/output/roocording-package/FireRoo-OrbitalConsol
   not relabelled. GO LIVE opens an honest gate: no publish path configured.
 - Mixer meters are driven by a real AnalyserNode — verified: silent = scaleY(0)
   exactly, demo playing = 0.23, back to 0 after stop.
-- Dual-path limiter: AudioWorklet over http, identical-DSP ScriptProcessorNode over
+- Dual-path limiter: AudioWorklet over http, identical ScriptProcessorNode over
   file://; HUD tags which path is live. House ceiling 0.891250938*0.97, no
   DynamicsCompressorNode anywhere.
 - Demo: deterministic 2-bar 120 BPM loop (kick+hat+pads+lead) feeding compass,
@@ -157,6 +157,30 @@ Re-run after the comment fix: 5/5 + OSC 8/8 both green; loopback avg RTT ~0.2-0.
 Push discipline: SEQUENTIAL create_or_update_file calls only — parallel pushes
 race the branch HEAD and 409.
 
+## SESSION 3d UPDATE (2026-10-29) — DANCE FLOW AI "ME ON STAGE" (v15.1)
+User: "Main person on stage straight away it's me and can pick in game and help."
+Deliverable: /mnt/agents/output/DanceFlowAI-v15.1-ME-on-Stage.html (also in
+roocording-package/, sha256 in SHA256.txt), built from the LIVE deployed
+fuckit.kimi.page v15.0 source (the older paste was missing v15 features).
+- Lead Performer select gains "ME — My 3D Scan (models/me.glb)". Boot auto-loads
+  models/me.glb: when present, YOU are the main person on stage straight away;
+  missing/corrupt file falls back to the pro dancer with an honest toast.
+- Uploads tab: "Put ME On Stage (.glb)" — local FileReader + GLTFLoader.parse;
+  the scan never leaves the device (stated on the card).
+- Stage tab: "Backup Dancer" toggle — when ME is on stage the mocap pro dancer
+  steps stage-left (x=-1.85, turned inward) and backs you up = the "help".
+- Unrigged scans get honest beat sway only (full-body scans are not rigged —
+  labelled on the card). No emojis added; add-only everywhere else.
+- Headless verification (Playwright, swiftshader): boot -> ME default on stage;
+  picker -> Real Dancer; picker -> ME + Backup ON -> both figures visible;
+  local .glb file-load path -> ME on stage. ZERO console errors.
+- THE USER'S SCAN FILE (me 3d.bin, 9,756,269 B) IS UNRECOVERABLE: it passed
+  through a UTF-8 text pipeline (4,672 U+FFFD replacements; 2,777,045 of
+  6,979,224 declared bytes destroyed — geometry AND textures). Verified three
+  independent ways (image magics absent, position floats denormal, length
+  accounting). User must re-export and send BINARY-SAFE (zip it first, or raw
+  upload — never paste). A test-fixture GLB proved the whole pipeline meanwhile.
+
 ## HOUSE RULES (non-negotiable)
 - Only speaking English. Add only; close hides; never delete desk suites.
 - Ceiling -1.0 dBTP = 0.891250938 linear. NEVER DynamicsCompressorNode.
@@ -176,6 +200,7 @@ race the branch HEAD and 409.
 - 12-asset 3D hive scripts: lost with /mnt/automation; regenerate from
   roocording-studio-director skill when agent-gw heals.
 - roo-pads-lab.js: waiting on user paste.
+- User's 3D scan: awaiting binary-safe re-send (zip or raw upload, never paste).
 
 ## NEXT AI: PICK UP HERE
 1. Rebuild SpaceForce from roocording-stock (spec in git history); rebuild
@@ -184,4 +209,6 @@ race the branch HEAD and 409.
 3. One real-browser pass on the PWA (GLB textures) + install test on the phone.
 4. Top up OpenArt -> keyframe downloads from a normal browser (historyIds above)
    -> Wan 3.0/PixVerse tour video -> watermark-free remakes.
-5. Keep every limiter at -1.0 dBTP and every label honest.
+5. When the user's scan arrives (binary-safe): drop it in as models/me.glb next
+   to DanceFlowAI-v15.1-ME-on-Stage.html — they are on stage automatically.
+6. Keep every limiter at -1.0 dBTP and every label honest.
